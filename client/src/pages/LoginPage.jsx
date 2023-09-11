@@ -1,4 +1,7 @@
+import { Link } from 'react-router-dom';
+
 const LoginPage = () => {
+
   return (
     <div className=" flex text-center items-center grow justify-around">
       <div className=" mb-32">
@@ -7,6 +10,9 @@ const LoginPage = () => {
           <input type="email" placeholder="your@gmail.com" />
           <input type="password" placeholder="password" />
           <button className="primary">Login</button>
+          <div className=' text-gray-500'>
+            Don't have an account yet? <Link to={'/register'} className=' underline text-black'>Register now</Link>
+          </div>
         </form>
       </div>
     </div>
