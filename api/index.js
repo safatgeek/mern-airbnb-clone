@@ -49,7 +49,7 @@ app.post("/login", async (req, res) => {
     if (passwordOk) {
       jwt.sign({email: userDocument.email, id: userDocument.id}, jwtSecret, {}, ((err, token) => {
         if(err) throw err
-        res.cookie("token", token ).json("Pass oke !");
+        res.cookie("token", token ).json(userDocument);
       }))
      
     } else {
