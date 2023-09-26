@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken")
 const { default: mongoose } = require("mongoose");
 const User = require("./models/User");
 const cookieParser = require("cookie-parser")
+const imageDownloader = require("image-downloader")
 const bcryptjs = require("bcryptjs");
 require("dotenv").config();
 const app = express();
@@ -14,6 +15,7 @@ const jwtSecret = "kfkaldgyufkau19"
 
 app.use(express.json());
 app.use(cookieParser())
+app.use("/uploads", express.static(__dirname+'/uploads'))
 
 app.use(
   cors({
@@ -81,4 +83,21 @@ app.post('/logout', (req, res) => {
   res.cookie("token", "").json(true)
 
 })
+
+app.post('/upload-by-link', async (req, res) => {
+  const {link} = req.body
+  const newName = "photo" + Date.now() + ".jpg"
+  try {
+    await imageDownloader.image({
+      url: link,
+      dest: __dirname + "/uploads/"+newName
+    })
+    res.json(newName)
+  } catch(err) {
+    console.log(err)
+    res.status(422).json({err})
+  }
+ 
+})
+
 app.listen(4000, () => console.log("server started"));
