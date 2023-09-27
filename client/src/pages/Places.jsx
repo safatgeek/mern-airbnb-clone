@@ -35,6 +35,22 @@ export const Places = () => {
     })
   }
 
+  const uploadPhoto = (ev) => {
+    const files = ev.target.files
+    const data = new FormData()
+    for (let i = 0; i < files.length; i++) {
+      data.append("photos", files[i])
+    }
+    axios.post("/upload", data, {
+      headers: {"Content-Type":"multipart/form-data"}
+    }).then((response) => {
+      const {data:filenames} = response
+      setaAdedPhotos(prev => {
+        return [...prev,...filenames]
+      })
+    })
+  }
+
   return (
     <div className="mt-4">
       {action !== "new" && (
@@ -98,7 +114,8 @@ export const Places = () => {
                   <img className=" rounded-2xl" src={"http://localhost:4000/uploads/"+imageName}/>
                 </div>
               ))}
-              <button className=" flex justify-center gap-1 border bg-transparent rounded-2xl p-8 text-2xl text-gray-500">
+              <label className=" cursor-pointer flex justify-center gap-1 border bg-transparent rounded-2xl p-8 text-2xl text-gray-500">
+                <input onChange={uploadPhoto} multiple type="file" className=" hidden" />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -114,7 +131,7 @@ export const Places = () => {
                   />
                 </svg>
                 Upload
-              </button>
+              </label>
             </div>
 
             {heading("Description", "Description of the place")}
