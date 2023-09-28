@@ -46,6 +46,7 @@ export const Places = () => {
     }).then((response) => {
       const {data:filenames} = response
       setaAdedPhotos(prev => {
+        console.log([...filenames])
         return [...prev,...filenames]
       })
     })
@@ -108,13 +109,13 @@ export const Places = () => {
               </button>
             </div>
 
-            <div className=" grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className=" gap-1 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
               {addedPhotos.length > 0 && addedPhotos.map(imageName => (
-                <div>
-                  <img className=" rounded-2xl" src={"http://localhost:4000/uploads/"+imageName}/>
+                <div >
+                  <img className=" h-32 w-full object-cover rounded-2xl" src={"http://localhost:4000/uploads/"+imageName}/>
                 </div>
               ))}
-              <label className=" cursor-pointer flex justify-center gap-1 border bg-transparent rounded-2xl p-8 text-2xl text-gray-500">
+              <label className=" h-32 items-center cursor-pointer flex justify-center gap-1 border bg-transparent rounded-2xl p-8 text-2xl text-gray-500">
                 <input onChange={uploadPhoto} multiple type="file" className=" hidden" />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
