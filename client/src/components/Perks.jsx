@@ -1,11 +1,21 @@
 import React from 'react'
 import { LiaDogSolid } from "react-icons/lia";
 
-const Perks = ({selected, onChange}) => {
+const Perks = ({selected, setPerk}) => {
+
+  const handleCheckBoxClick = (ev) => {
+    const {checked, name} = ev.target
+    if (checked) {
+      setPerk([...selected, name])
+    } else {
+      setPerk([...selected.filter( selectedName => selectedName != name)])
+    }
+  }
+
   return (
     <>
     <label className ={"perks"}>
-              <input type="checkbox" />
+              <input type="checkbox" name="TV"  onChange={handleCheckBoxClick}/>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -25,7 +35,7 @@ const Perks = ({selected, onChange}) => {
             </label>
 
             <label className ={"perks"}>
-              <input type="checkbox" />
+              <input type="checkbox" name="Wifi" onChange={handleCheckBoxClick}/>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -45,7 +55,7 @@ const Perks = ({selected, onChange}) => {
             </label>
 
             <label className ="perks">
-              <input type="checkbox" />
+              <input type="checkbox" name="perking" onChange={handleCheckBoxClick}/>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -65,13 +75,13 @@ const Perks = ({selected, onChange}) => {
             </label>
 
             <label className ="perks">
-              <input type="checkbox" />
+              <input type="checkbox" name="pets" onChange={handleCheckBoxClick}/>
               <LiaDogSolid className=" h-6 w-6" />
               <span>Pets</span>
             </label>
 
             <label className ="perks">
-              <input type="checkbox" />
+              <input type="checkbox" name="Radio" onChange={handleCheckBoxClick}/>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -91,7 +101,7 @@ const Perks = ({selected, onChange}) => {
             </label>
 
             <label className ="perks">
-              <input type="checkbox" />
+              <input type="checkbox" name="private entrance" onChange={handleCheckBoxClick}/>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
