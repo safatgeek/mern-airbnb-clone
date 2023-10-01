@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Perks from "../components/Perks";
 import PhotosUploader from "../components/PhotosUploader";
-
+import axios from "axios";
 
 export const Places = () => {
   const { action } = useParams();
@@ -16,6 +16,7 @@ export const Places = () => {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
+  const [redirect, setRedirect] = useState("")
 
   const heading = (header, description) => {
     return (
@@ -26,7 +27,30 @@ export const Places = () => {
     );
   };
 
- 
+  const addNewPlace = async (ev) => {
+    ev.preventDefault();
+    try {
+      await axios.post("/places", {
+        title,
+        address,
+        addedPhotos,
+        description,
+        perks,
+        extraInfo,
+        checkIn,
+        checkOut,
+        maxGuests,
+      });
+      setRedirect("/account/places")
+    } catch (error) {
+      console.log("Error")
+    }
+    
+  };
+
+  if (redirect) {
+    return <Navigate to={redirect} />
+  }
 
   return (
     <div className="mt-4">
@@ -56,7 +80,7 @@ export const Places = () => {
       )}
 
       {action === "new" && (
-        <form>
+        <form onSubmit={addNewPlace}>
           <div>
             {heading("Title", "Title for your place")}
             <input
@@ -72,8 +96,11 @@ export const Places = () => {
               onChange={(ev) => setAddress(ev.target.value)}
               placeholder="address"
             />
-            
-            <PhotosUploader  addedPhotos={addedPhotos} setaAdedPhoto={setaAdedPhotos}/>
+
+            <PhotosUploader
+              addedPhotos={addedPhotos}
+              setaAdedPhoto={setaAdedPhotos}
+            />
 
             {heading("Description", "Description of the place")}
             <textarea

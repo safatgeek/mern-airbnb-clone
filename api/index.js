@@ -1,23 +1,24 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 const { default: mongoose } = require("mongoose");
 const User = require("./models/User");
-const cookieParser = require("cookie-parser")
-const imageDownloader = require("image-downloader")
-const multer = require("multer")
-const fs = require('fs')
+const cookieParser = require("cookie-parser");
+const imageDownloader = require("image-downloader");
+const multer = require("multer");
+const fs = require("fs");
 const bcryptjs = require("bcryptjs");
+const PlaceModel = require("./models/Place");
 require("dotenv").config();
 const app = express();
 
 const bcryptSalt = bcrypt.genSaltSync(10);
-const jwtSecret = "kfkaldgyufkau19"
+const jwtSecret = "kfkaldgyufkau19";
 
 app.use(express.json());
-app.use(cookieParser())
-app.use("/uploads", express.static(__dirname+'/uploads'))
+app.use(cookieParser());
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 app.use(
   cors({
@@ -54,11 +55,15 @@ app.post("/login", async (req, res) => {
   if (userDocument) {
     const passwordOk = bcrypt.compareSync(password, userDocument.password);
     if (passwordOk) {
-      jwt.sign({email: userDocument.email, id: userDocument.id}, jwtSecret, {}, ((err, token) => {
-        if(err) throw err
-        res.cookie("token", token ).json(userDocument);
-      }))
-     
+      jwt.sign(
+        { email: userDocument.email, id: userDocument.id },
+        jwtSecret,
+        {},
+        (err, token) => {
+          if (err) throw err;
+          res.cookie("token", token).json(userDocument);
+        }
+      );
     } else {
       res.status(422).json("Pass not oke !");
     }
@@ -67,55 +72,84 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-app.get('/profile', (req,res) => {
-  const {token} = req.cookies
+app.get("/profile", (req, res) => {
+  const { token } = req.cookies;
   if (token) {
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-      if (err) throw err
-      const {name, email, _id} = await User.findById(userData.id)
-      res.json({name,email, _id})
-    })
+      if (err) throw err;
+      const { name, email, _id } = await User.findById(userData.id);
+      res.json({ name, email, _id });
+    });
   } else {
-    res.json(null)
+    res.json(null);
   }
-})
+});
 
-app.post('/logout', (req, res) => {
-  res.cookie("token", "").json(true)
+app.post("/logout", (req, res) => {
+  res.cookie("token", "").json(true);
+});
 
-})
-
-app.post('/upload-by-link', async (req, res) => {
-  const {link} = req.body
-  const newName = "photo" + Date.now() + ".jpg"
+app.post("/upload-by-link", async (req, res) => {
+  const { link } = req.body;
+  const newName = "photo" + Date.now() + ".jpg";
   try {
     await imageDownloader.image({
       url: link,
-      dest: __dirname + "/uploads/"+newName
-    })
-    res.json(newName)
-  } catch(err) {
-    console.log(err)
-    res.status(422).json({err})
+      dest: __dirname + "/uploads/" + newName,
+    });
+    res.json(newName);
+  } catch (err) {
+    console.log(err);
+    res.status(422).json({ err });
   }
-})
+});
 
-
-const photosMiddleware = multer({dest:"uploads/"})
-app.post('/upload', photosMiddleware.array("photos", 100), (req, res) => {
-  const uploadedFiles = []
-  console.log("called")
+const photosMiddleware = multer({ dest: "uploads/" });
+app.post("/upload", photosMiddleware.array("photos", 100), (req, res) => {
+  const uploadedFiles = [];
+  console.log("called");
   for (let i = 0; i < req.files.length; i++) {
-    const {path,originalname} = req.files[i]
-    const parts = originalname.split(".")
-    const ext = parts[parts.length - 1]
-    const newPath = path + "." + ext
-    console.log(newPath)
-    fs.renameSync(path, newPath)
-    uploadedFiles.push(newPath.replace("uploads\\",""))
+    const { path, originalname } = req.files[i];
+    const parts = originalname.split(".");
+    const ext = parts[parts.length - 1];
+    const newPath = path + "." + ext;
+    console.log(newPath);
+    fs.renameSync(path, newPath);
+    uploadedFiles.push(newPath.replace("uploads\\", ""));
   }
-  res.json(uploadedFiles)
-})
+  res.json(uploadedFiles);
+});
+
+app.post("/places", (req, res) => {
+  const { token } = req.cookies;
+  const {
+    title,
+    address,
+    addedPhotos,
+    description,
+    perks,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+  } = req.body;
+
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) throw err;
+    const placeDoc = await PlaceModel.create({
+      owner: userData.id,
+      title,
+      address,
+      addedPhotos,
+      description,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+    });
+    res.json(placeDoc)
+  });
+});
 
 app.listen(4000, () => console.log("server started"));
